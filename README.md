@@ -1,4 +1,6 @@
-![OpenPNP Logo](https://raw.githubusercontent.com/openpnp/openpnp-logo/develop/logo_small.png)
+# This is a fork of OpenPNP for my needs
+
+
 
 # OpenPnP
 
