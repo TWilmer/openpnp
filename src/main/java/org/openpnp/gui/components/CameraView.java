@@ -236,7 +236,7 @@ public class CameraView extends JComponent implements CameraListener {
                     repaint();
                 }
             }
-        }, 0, 50, TimeUnit.MILLISECONDS);
+        }, 0, 500, TimeUnit.MILLISECONDS);
     }
     
     private String getReticlePrefKey() {
