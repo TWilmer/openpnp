@@ -135,8 +135,16 @@ public class RpiUV4LCamera extends ReferenceCamera implements Runnable {
                     .getResourceAsStream(sourceUri.substring("classpath://".length())));
         }
         else {
-        	System.out.println("Open RPI Camera at : "+sourceUri);
-            source = ImageIO.read(new URL(sourceUri));
+        	// The access of the URI may fail
+        	try {
+        		  System.out.println("Open RPI Camera at : "+sourceUri);
+                  source = ImageIO.read(new URL(sourceUri));
+  			
+  			} catch (IOException e1) {
+  				// TODO Auto-generated catch block
+  				e1.printStackTrace();
+  			}
+        	
         }
 
         if (listeners.size() > 0) {
