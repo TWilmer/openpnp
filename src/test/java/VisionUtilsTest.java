@@ -27,19 +27,18 @@ import com.google.common.io.Files;
 
 public class VisionUtilsTest {
 
-	 @Before
-	 public void before() throws Exception {
-	 /**
-     * Create a new config directory and load the default configuration.
-     */
-    File workingDirectory = Files.createTempDir();
-    workingDirectory = new File(workingDirectory, ".openpnp");
-    System.out.println("Configuration directory: " + workingDirectory);
-    Configuration.initialize(workingDirectory);
-    Configuration.get().load();
-    
-	   }
-    
+	@Before
+	public void before() throws Exception {
+		/**
+		 * Create a new config directory and load the default configuration.
+		 */
+		File workingDirectory = Files.createTempDir();
+		workingDirectory = new File(workingDirectory, ".openpnp");
+		System.out.println("Configuration directory: " + workingDirectory);
+		Configuration.initialize(workingDirectory);
+		Configuration.get().load();
+
+	}
 
     @Test
     public void testOffsets() {
