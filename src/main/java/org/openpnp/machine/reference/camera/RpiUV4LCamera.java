@@ -38,11 +38,10 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.core.Commit;
 
-public class RpiUV4LCamera extends ReferenceCamera implements Runnable {
+public class RpiUV4LCamera extends ReferenceCamera  {
     private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-    @Attribute(required = false)
-    private int fps = 1;
+
 
     @Element
     private String sourceUri = "http://192.168.0.41:8080/stream/snapshot.jpeg?delay_s=0";
@@ -74,40 +73,6 @@ public class RpiUV4LCamera extends ReferenceCamera implements Runnable {
         setSourceUri(sourceUri);
     }
 
-    @Override
-    public synchronized void startContinuousCapture(CameraListener listener) {
-        start();
-        super.startContinuousCapture(listener);
-    }
-
-    @Override
-    public synchronized void stopContinuousCapture(CameraListener listener) {
-        super.stopContinuousCapture(listener);
-        if (listeners.size() == 0) {
-            stop();
-        }
-    }
-
-    private synchronized void stop() {
-        if (thread != null && thread.isAlive()) {
-            thread.interrupt();
-            try {
-                thread.join(3000);
-            }
-            catch (Exception e) {
-
-            }
-            thread = null;
-        }
-    }
-
-    private synchronized void start() {
-        if (thread == null) {
-            thread = new Thread(this);
-            thread.setDaemon(true);
-            thread.start();
-        }
-    }
 
     public String getSourceUri() {
         return sourceUri;
@@ -117,59 +82,24 @@ public class RpiUV4LCamera extends ReferenceCamera implements Runnable {
         String oldValue = this.sourceUri;
         this.sourceUri = sourceUri;
         pcs.firePropertyChange("sourceUri", oldValue, sourceUri);
-        initialize();
+
     }
 
     @Override
     public synchronized BufferedImage internalCapture() {
     
-
-        return source;
-    }
-
-    private synchronized void initialize() throws Exception {
-        stop();
-
-        if (sourceUri.startsWith("classpath://")) {
-            source = ImageIO.read(getClass().getClassLoader()
-                    .getResourceAsStream(sourceUri.substring("classpath://".length())));
-        }
-        else {
-        	// The access of the URI may fail
-        	try {
-        		  System.out.println("Open RPI Camera at : "+sourceUri);
-                  source = ImageIO.read(new URL(sourceUri));
-  			
-  			} catch (IOException e1) {
-  				// TODO Auto-generated catch block
-  				e1.printStackTrace();
-  			}
-        	
-        }
-
-        if (listeners.size() > 0) {
-            start();
-        }
-    }
-
-
-    public void run() {
-        while (!Thread.interrupted()) {
-        	  try {
+    	  try {
 				source = ImageIO.read(new URL(sourceUri));
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-            broadcastCapture(captureForPreview());
-            try {
-                Thread.sleep(1000 / fps);
-            }
-            catch (InterruptedException e) {
-                return;
-            }
-        }
+        return source;
     }
+
+   
+
+
 
     @Override
     public Wizard getConfigurationWizard() {
