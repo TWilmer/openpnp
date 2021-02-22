@@ -43,6 +43,8 @@ public class HttpActuatorConfigurationWizard extends AbstractActuatorConfigurati
     private JTextField onUrlTf;
     private JLabel lblOffUrl;
     private JTextField offUrlTf;
+    private JLabel lblReadUrl;
+    private JTextField readUrlTf;    
 
     public HttpActuatorConfigurationWizard(AbstractMachine machine, HttpActuator httpActuator) {
         super(machine, httpActuator);
@@ -59,7 +61,9 @@ public class HttpActuatorConfigurationWizard extends AbstractActuatorConfigurati
                         FormSpecs.RELATED_GAP_COLSPEC, FormSpecs.DEFAULT_COLSPEC,},
                 new RowSpec[] {FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
                         FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
-                        FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,}));
+                        FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+                        FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+                        FormSpecs.RELATED_GAP_ROWSPEC}));
 
         lblName = new JLabel("Name");
         panelProperties.add(lblName, "2, 2, right, default");
@@ -81,6 +85,15 @@ public class HttpActuatorConfigurationWizard extends AbstractActuatorConfigurati
         offUrlTf = new JTextField();
         panelProperties.add(offUrlTf, "4, 6, fill, default");
         offUrlTf.setColumns(40);
+        
+        
+        lblReadUrl = new JLabel("Read URL");
+        panelProperties.add(lblReadUrl, "2, 8, right, default");
+
+        readUrlTf = new JTextField();
+        panelProperties.add(readUrlTf, "4, 8, fill, default");
+        readUrlTf.setColumns(40);
+
 
         super.createUi(machine);
     }
@@ -91,9 +104,11 @@ public class HttpActuatorConfigurationWizard extends AbstractActuatorConfigurati
         addWrappedBinding(actuator, "name", nameTf, "text");
         addWrappedBinding(actuator, "onUrl", onUrlTf, "text");
         addWrappedBinding(actuator, "offUrl", offUrlTf, "text");
+        addWrappedBinding(actuator, "readUrl", readUrlTf, "text");
         
         ComponentDecorators.decorateWithAutoSelect(nameTf);
         ComponentDecorators.decorateWithAutoSelect(onUrlTf);
         ComponentDecorators.decorateWithAutoSelect(offUrlTf);
+        ComponentDecorators.decorateWithAutoSelect(readUrlTf);
     }
 }

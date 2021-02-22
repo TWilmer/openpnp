@@ -542,7 +542,7 @@ public abstract class ReferenceCamera extends AbstractCamera implements Referenc
         this.calibrationCallback = callback;
         calibration.setEnabled(false);
         lensCalibration = new LensCalibration(LensModel.Pinhole, Pattern.AsymmetricCirclesGrid, 4,
-                11, 15, 750);
+                8, 22, 750);
         calibrating = true;
     }
 
