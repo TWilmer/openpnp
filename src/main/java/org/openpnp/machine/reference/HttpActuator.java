@@ -21,12 +21,15 @@
 package org.openpnp.machine.reference;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 
 import org.openpnp.gui.support.Wizard;
 import org.openpnp.machine.reference.wizards.HttpActuatorConfigurationWizard;
+import org.openpnp.util.TextUtils;
 import org.pmw.tinylog.Logger;
 import org.simpleframework.xml.Element;
 
@@ -39,33 +42,60 @@ public class HttpActuator extends ReferenceActuator {
     protected String offUrl = "";
 
     @Element(required = false)
+    protected String paramUrl = "";
+
+    // The actuation state should not be persisted.
+    @Deprecated
+    @Element(required = false)
     protected boolean on = false;
-    
+
+    // Instead we remember the last formed URL per session. 
+    // Storing the formed URL instead of the value covers folding through formating/canonical form as well as
+    // configuration changes. 
+    protected String lastActuationUrl = null;
+
     @Element(required = false)
     protected String readUrl = "";
 
     public HttpActuator() {}
 
     @Override
-    public void actuate(boolean on) throws Exception {
-        if (isCoordinatedBeforeActuate()) {
-            coordinateWithMachine(false);
+    protected void driveActuation(boolean on) throws Exception {
+        if (on && this.onUrl.isEmpty()) {
+            driveActuation("1");
         }
-        Logger.debug("{}.actuate({})", getName(), on);
-        // getDriver().actuate(this, on);
-        URL obj = null;
-        if (this.on && !on) {
-            // fire OFF
-            obj = new URL(this.offUrl);
-        }
-        else if (!this.on && on) {
-            // fire ON
-            obj = new URL(this.onUrl);
+        else if ((!on) && this.offUrl.isEmpty()) {
+            driveActuation("0");
         }
         else {
+            URL url = (on ? 
+                    new URL(this.onUrl) 
+                    : new URL(this.offUrl));
+            actuateUrl(on, url);
+        }
+    }
+
+    @Override
+    protected void driveActuation(double value) throws Exception {
+        String urlString = TextUtils.substituteVar(paramUrl, "val", value);
+        URL url = new URL(urlString);
+        actuateUrl(value, url);
+    }
+
+    @Override
+    protected void driveActuation(String value) throws Exception {
+        String urlString = TextUtils.substituteVar(paramUrl, "val", value);
+        URL url = new URL(urlString);
+        actuateUrl(value, url);
+    }
+
+    protected void actuateUrl(Object value, URL url) throws IOException, ProtocolException {
+        if (this.lastActuationUrl != null 
+                && this.lastActuationUrl.equals(url.toString())) {
+            // URL hasn't changed: don't bother.
             return;
         }
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("User-Agent", "Mozilla/5.0");
 
@@ -80,17 +110,11 @@ public class HttpActuator extends ReferenceActuator {
         }
         in.close();
 
-        Logger.debug("{}.HTTPActuate turning: {} )", getName(), on);
-        Logger.debug("{}.HTTPActuate requesting: {} )", getName(), obj.toString());
-        Logger.debug("{}.HTTPActuate responseCode: {} )", getName(), responseCode);
-        Logger.debug("{}.HTTPActuate response: {} )", getName(), response);
-        this.on = on;
-        setLastActuationValue(on);
-
-        if (isCoordinatedAfterActuate()) {
-            coordinateWithMachine(true);
-        }
-        getMachine().fireMachineHeadActivity(head);
+        Logger.trace("{}.HTTPActuate value: {} )", getName(), value);
+        Logger.trace("{}.HTTPActuate requesting: {} )", getName(), url.toString());
+        Logger.trace("{}.HTTPActuate responseCode: {} )", getName(), responseCode);
+        Logger.trace("{}.HTTPActuate response: {} )", getName(), response);
+        this.lastActuationUrl = url.toString();
     }
 
     @Override
@@ -115,18 +139,20 @@ public class HttpActuator extends ReferenceActuator {
         this.offUrl = url;
         firePropertyChange("offUrl", null, this.offUrl);
     }
-    
-    public String getReadUrl() {
-        return this.readUrl;
+
+    public String getParamUrl() {
+        return paramUrl;
     }
 
     public void setReadUrl(String url) {
         this.readUrl = url;
         firePropertyChange("readUrl", null, this.readUrl);
     }
-    
-    
-    
+
+    public void setParamUrl(String paramUrl) {
+        this.paramUrl = paramUrl;
+    }
+
     @Override
     public String read() throws Exception {
         if (isCoordinatedBeforeRead()) {
