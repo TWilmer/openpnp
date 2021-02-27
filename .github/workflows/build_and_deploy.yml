@@ -13,6 +13,11 @@ jobs:
         java: [8, 9, 10, 11, 12, 13, 14, 15]    
     steps:
       - uses: actions/checkout@v2.1.0
+      - name: Setup JDK ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+
       - uses: uraimo/run-on-arch-action@v2.0.5
         name: Run commands
         id: runcmd
@@ -24,11 +29,7 @@ jobs:
           # a GitHub package registry.
           githubToken: ${{ github.token }}
           
-      - name: Setup JDK ${{ matrix.java }}
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.java }}
-          
+        
 
           # Set an output parameter `uname` for use in subsequent steps
           run: |
