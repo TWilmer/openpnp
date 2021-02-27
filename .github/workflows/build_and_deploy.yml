@@ -7,10 +7,7 @@ on:
 jobs:
   armv7_job: 
     runs-on: ubuntu-latest
-    name: Build on ubuntu-latest armv8
-    strategy:
-      matrix:
-        java: [8, 9, 10, 11, 12, 13, 14, 15]    
+    name: Build on ubuntu-latest armv8   
     steps:
       - uses: actions/checkout@v2.1.0
       - uses: uraimo/run-on-arch-action@v2.0.5
